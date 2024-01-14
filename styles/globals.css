@@ -48,3 +48,21 @@ table.basic a {
 .btn-default {
 	@apply bg-white text-gray-800 px-4 py-1 rounded-sm border border-gray-200 shadow-sm;
 }
+
+
+
+.news-card {
+	@apply border border-solid border-gray-300 rounded p-4 m-4 max-w-xs transition duration-300 ease-in-out transform hover:shadow-md;
+  }
+  
+  .news-title {
+	@apply text-xl font-semibold mb-2;
+  }
+  
+  .read-more-link {
+	@apply flex items-center text-blue-500 no-underline hover:text-blue-700 transition duration-300 ease-in-out;
+  }
+  
+  .arrow-icon {
+	@apply ml-1;
+  }

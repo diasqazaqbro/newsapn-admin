@@ -1,16 +1,12 @@
-import '@/styles/globals.css'
-import '@/styles/style.sass'
-import { SessionProvider } from 'next-auth/react'
+import "@/styles/globals.css";
+import "@/styles/style.sass";
+import { SessionProvider } from "next-auth/react";
 
-export default function App({
-	Component,
-	pageProps: { ...pageProps },
-}) {
-console.log('Environment Variable:', process.env.HUDOS_LOGIN);
+export default function App({ Component, pageProps: { ...pageProps } }) {
 
-	return (
-		<SessionProvider >
-			<Component {...pageProps} />
-		</SessionProvider>
-	)
+  return (
+    <SessionProvider>
+      <Component {...pageProps} />
+    </SessionProvider>
+  );
 }
