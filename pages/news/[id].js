@@ -6,11 +6,14 @@ import { collection, doc, getDocs, updateDoc } from "firebase/firestore/lite";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import ReactHtmlParser from "react-html-parser";
+
 const NewsId = () => {
   const router = useRouter();
   const { id } = router.query;
 
   const [selectedNews, setSelectedNews] = useState(null);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedCategory, setEditedCategory] = useState("");
 
   useEffect(() => {
     async function fetchNews() {
@@ -23,6 +26,8 @@ const NewsId = () => {
         }));
         const foundNews = newsDocs.find((news) => news.id === id);
         setSelectedNews(foundNews);
+        setEditedTitle(foundNews.post_title);
+        setEditedCategory(foundNews.category);
       } catch (error) {
         console.error("Error fetching news:", error);
       }
@@ -32,6 +37,15 @@ const NewsId = () => {
   }, [id]);
 
   const editorRef = useRef(null);
+
+  const handleTitleChange = (e) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleCategoryChange = (e) => {
+    setEditedCategory(e.target.value);
+  };
+
   const log = async () => {
     if (editorRef.current) {
       console.log(editorRef.current.getContent());
@@ -39,6 +53,8 @@ const NewsId = () => {
         const newsDocRef = doc(db, "news", id);
 
         const updatedData = {
+          post_title: editedTitle,
+          category: editedCategory,
           post_description: editorRef.current.getContent(),
         };
 
@@ -50,12 +66,11 @@ const NewsId = () => {
       }
     }
   };
+
   return (
     <Layout>
       {selectedNews ? (
-        <div className="max-w p-12 m-12 bg-white rounded-xl overflow-hidden shadow-md">
-            <DeleteItem id={id}/>
-
+        <div className="max-w p-4 md:p-8 lg:p-12 bg-white rounded-xl overflow-hidden shadow-md">
           <img
             className="w-full h-48 object-cover"
             src={selectedNews.post_photo}
@@ -71,11 +86,49 @@ const NewsId = () => {
               {selectedNews.post_title}
             </h2>
             <p className="text-gray-600">
-              {" "}
               {ReactHtmlParser(selectedNews.post_description)}
             </p>
           </div>
-          <div>
+          <hr />
+          <div className="mt-10">
+            <h2 className="mb-5 font-bold text-2xl">Редактировать</h2>
+
+            <input
+              type="text"
+              value={editedTitle}
+              onChange={handleTitleChange}
+              className="border p-2 mb-4 rounded"
+            />
+
+            <select
+              value={editedCategory}
+              onChange={handleCategoryChange}
+              className="border p-2 mb-4 rounded"
+            >
+              <option value={"Происшествия"}>Происшествия</option>
+              <option value={"Анонсы"}>Анонсы</option>
+              <option value={"История"}>История</option>
+              <option value={"Спорт"}>Спорт</option>
+              <option value={"Символика и атрибутика"}>
+                Символика и атрибутика
+              </option>
+              <option value={"Культура"}>Культура</option>
+              <option value={"Образование"}>Образование</option>
+              <option value={"Обращение"}>Обращение</option>
+              <option value={"Летопись"}>Летопись</option>
+              <option value={"Экономика"}>Экономика</option>
+              <option value={"Общество"}>Общество</option>
+              <option value={"Портрет"}>Портрет</option>
+              <option value={"Путешествия"}>Путешествия</option>
+              <option value={"События"}>События</option>
+              <option value={"Здоровье и психология"}>
+                Здоровье и психология
+              </option>
+              <option value={"Архитектура и строительство"}>
+                Архитектура и строительство
+              </option>
+            </select>
+
             <Editor
               apiKey="your-api-key"
               onInit={(evt, editor) => (editorRef.current = editor)}
@@ -112,12 +165,16 @@ const NewsId = () => {
                   "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
               }}
             />
-            <button
-              className="bg-blue-500 text-white px-4 mt-4 py-2 rounded"
-              onClick={log}
-            >
-              Редактировать
-            </button>
+            <div className="flex mt-4">
+              {" "}
+              <button
+                className="bg-blue-500 text-white px-4 mr-4 py-2 rounded"
+                onClick={log}
+              >
+                Редактировать
+              </button>
+              <DeleteItem id={id} />
+            </div>
           </div>
         </div>
       ) : (

@@ -5,9 +5,14 @@ import Layout from "@/components/Layout";
 import { Editor } from "@tinymce/tinymce-react";
 
 const NewNewsForm = () => {
-  const [category, setCategory] = useState("");
   const [postTitle, setPostTitle] = useState("");
   const editorRef = useRef(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  const handleCategoryChange = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedCategory(selectedValue);
+  };
 
   const handleCreateNews = async () => {
     if (editorRef.current) {
@@ -15,14 +20,12 @@ const NewNewsForm = () => {
       try {
         const newsCollection = collection(db, "news");
         const newNewsDoc = await addDoc(newsCollection, {
-          category: category,
+          category: selectedCategory,
           post_description: editorRef.current.getContent(),
           post_title: postTitle,
         });
 
         console.log("Document successfully created with ID:", newNewsDoc.id);
-        setCategory("");
-        setPostDescription("");
         setPostTitle("");
       } catch (error) {
         console.error("Error creating document: ", error);
@@ -34,15 +37,37 @@ const NewNewsForm = () => {
     <Layout>
       <div className="flex items-center justify-center">
         <div className="max-w w-full p-4 bg-white rounded-lg shadow-md">
-          <label className="block mb-2">
-            <span className="text-gray-700">Категория:</span>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
-            />
-          </label>
+          <label htmlFor="category">Категория:</label>
+          <select
+            id="category"
+            name="category"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            className="p-2 border rounded-md"
+          >
+            <option value={"Происшествия"}>Происшествия</option>
+            <option value={"Анонсы"}>Анонсы</option>
+            <option value={"История"}>История</option>
+            <option value={"Спорт"}>Спорт</option>
+            <option value={"Символика и атрибутика"}>
+              Символика и атрибутика
+            </option>
+            <option value={"Культура"}>Культура</option>
+            <option value={"Образование"}>Образование</option>
+            <option value={"Обращение"}>Обращение</option>
+            <option value={"Летопись"}>Летопись</option>
+            <option value={"Экономика"}>Экономика</option>
+            <option value={"Общество"}>Общество</option>
+            <option value={"Портрет"}>Портрет</option>
+            <option value={"Путешествия"}>Путешествия</option>
+            <option value={"События"}>События</option>
+            <option value={"Здоровье и психология"}>
+              Здоровье и психология
+            </option>
+            <option value={"Архитектура и строительство"}>
+              Архитектура и строительство
+            </option>
+          </select>
           <label className="block mb-4">
             <span className="text-gray-700">Заголовок:</span>
             <input

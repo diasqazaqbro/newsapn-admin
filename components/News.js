@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { db } from "@/lib/config";
-import { collection, getDocs } from "firebase/firestore/lite";
+import { collection, getDocs, query, where } from "firebase/firestore/lite";
 import Link from "next/link";
 
 const News = () => {
   const [newsList, setNewsList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     async function fetchNews() {
       try {
         const newsCollection = collection(db, "news");
-        const querySnapshot = await getDocs(newsCollection);
+        const q = query(
+          newsCollection,
+          selectedCategory ? where("category", "==", selectedCategory) : []
+        );
+        const querySnapshot = await getDocs(q);
         const newsDocs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -22,24 +28,114 @@ const News = () => {
     }
 
     fetchNews();
-  }, []);
+  }, [selectedCategory]);
+
+  const handleSearch = async () => {
+    try {
+      const newsCollection = collection(db, "news");
+      const q = query(
+        newsCollection,
+        searchQuery ? where("post_title", ">=", searchQuery) : []
+      );
+      const querySnapshot = await getDocs(q);
+      const newsDocs = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setNewsList(newsDocs);
+    } catch (error) {
+      console.error("Error searching news:", error);
+    }
+  };
+
   return (
+    <div className="container mx-auto p-4">
+      <div className="mb-4">
+        <label htmlFor="search" className="mr-2">
+          Поиск:
+        </label>
+        <input
+          type="text"
+          id="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border p-2 rounded"
+        />
+        <button
+          onClick={handleSearch}
+          className="ml-2 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Найти
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="category" className="mr-2">
+          Фильтрация по Категориям
+        </label>
+        <select
+          id="category"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="border p-2 rounded"
+        >
+          <option value="">All</option>
+          <option value={"Происшествия"}>Происшествия</option>
+          <option value={"Анонсы"}>Анонсы</option>
+          <option value={"История"}>История</option>
+          <option value={"Спорт"}>Спорт</option>
+          <option value={"Символика и атрибутика"}>
+            Символика и атрибутика
+          </option>
+          <option value={"Культура"}>Культура</option>
+          <option value={"Образование"}>Образование</option>
+          <option value={"Обращение"}>Обращение</option>
+          <option value={"Летопись"}>Летопись</option>
+          <option value={"Экономика"}>Экономика</option>
+          <option value={"Общество"}>Общество</option>
+          <option value={"Портрет"}>Портрет</option>
+          <option value={"Путешествия"}>Путешествия</option>
+          <option value={"События"}>События</option>
+          <option value={"Здоровье и психология"}>Здоровье и психология</option>
+          <option value={"Архитектура и строительство"}>
+            Архитектура и строительство
+          </option>
+        </select>
+      </div>
+
       <div className="flex flex-wrap">
         {newsList.map((newsItem) => (
-          <div className="news-card" key={newsItem.id}>
-          <Link href={`/news/${newsItem.id}`}>
-            <span className="news-title">{newsItem.post_title}</span>
-          </Link>
-          <Link href={`/news/${newsItem.id}`}>
-            <span className="read-more-link">
-              Read more
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 arrow-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </span>
-          </Link>
-        </div>
+          <div
+            className="news-card bg-white p-4 m-4 rounded shadow-md"
+            key={newsItem.id}
+          >
+            <Link href={`/news/${newsItem.id}`}>
+              <span className="news-title text-xl font-semibold mb-2">
+                {newsItem.post_title}
+              </span>
+            </Link>
+            <Link href={`/news/${newsItem.id}`}>
+              <span className="read-more-link flex items-center text-blue-500 no-underline hover:text-blue-700 transition duration-300 ease-in-out">
+                Читать больше
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  className="w-4 h-4 ml-1 arrow-icon"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </span>
+            </Link>
+          </div>
         ))}
+      </div>
     </div>
   );
 };
