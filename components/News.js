@@ -12,11 +12,7 @@ const News = () => {
     async function fetchNews() {
       try {
         const newsCollection = collection(db, "news");
-        const q = query(
-          newsCollection,
-          selectedCategory ? where("category", "==", selectedCategory) : []
-        );
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(newsCollection);
         const newsDocs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -30,23 +26,9 @@ const News = () => {
     fetchNews();
   }, [selectedCategory]);
 
-  const handleSearch = async () => {
-    try {
-      const newsCollection = collection(db, "news");
-      const q = query(
-        newsCollection,
-        searchQuery ? where("post_title", ">=", searchQuery) : []
-      );
-      const querySnapshot = await getDocs(q);
-      const newsDocs = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setNewsList(newsDocs);
-    } catch (error) {
-      console.error("Error searching news:", error);
-    }
-  };
+  const filteredNews = newsList.filter((news) =>
+    news.post_title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="container mx-auto p-4">
@@ -61,12 +43,6 @@ const News = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border p-2 rounded"
         />
-        <button
-          onClick={handleSearch}
-          className="ml-2 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Найти
-        </button>
       </div>
 
       <div className="mb-4">
@@ -104,7 +80,7 @@ const News = () => {
       </div>
 
       <div className="flex flex-wrap">
-        {newsList.map((newsItem) => (
+        {filteredNews.map((newsItem) => (
           <div
             className="news-card bg-white p-4 m-4 rounded shadow-md"
             key={newsItem.id}
