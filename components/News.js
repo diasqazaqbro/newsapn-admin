@@ -26,7 +26,11 @@ const News = () => {
     fetchNews();
   }, [selectedCategory]);
 
-  const filteredNews = newsList.filter((news) =>
+  const filteredNewsByCategory = selectedCategory
+    ? newsList.filter((news) => news.category == selectedCategory)
+    : newsList;
+
+  const filteredNews = filteredNewsByCategory.filter((news) =>
     news.post_title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
