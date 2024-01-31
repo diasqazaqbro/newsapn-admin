@@ -1,11 +1,13 @@
 import DeleteItem from "@/components/DeleteItem";
 import Layout from "@/components/Layout";
-import { db } from "@/lib/config";
+import { db, storage } from "@/lib/config";
 import { Editor } from "@tinymce/tinymce-react";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore/lite";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import ReactHtmlParser from "react-html-parser";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 
 const NewsId = () => {
   const router = useRouter();
@@ -14,6 +16,21 @@ const NewsId = () => {
   const [selectedNews, setSelectedNews] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedCategory, setEditedCategory] = useState("");
+  
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    try {
+      const storageRef = ref(storage, `news/${selectedNews.post_title}`);
+      await uploadBytes(storageRef, file);
+      const photoURL = await getDownloadURL(storageRef);
+      const updatedData = { post_photo: photoURL };
+      const newsDocRef = doc(db, "news", id);
+      await updateDoc(newsDocRef, updatedData);
+      setSelectedNews((prevState) => ({ ...prevState, post_photo: photoURL })); 
+    } catch (error) {
+      console.error("Error updating photo:", error);
+    }
+};
 
   useEffect(() => {
     async function fetchNews() {
@@ -66,7 +83,6 @@ const NewsId = () => {
       }
     }
   };
-
   return (
     <Layout>
       {selectedNews ? (
@@ -76,6 +92,17 @@ const NewsId = () => {
             src={selectedNews.post_photo}
             alt={selectedNews.post_title}
           />
+          <div className="mt-4">
+            <label htmlFor="fileInput" className="cursor-pointer">
+              <span className="bg-blue-500 text-white px-2 mr-4 py-1 rounded">
+                Редактировать фотографию
+              </span>
+              <input id="fileInput" onClick={() => {
+                handleFileChange(event)
+              }} type="file" style={{ display: "none" }} />
+            </label>
+          </div>
+
           <div className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-gray-800 font-bold">
