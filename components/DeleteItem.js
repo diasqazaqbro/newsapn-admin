@@ -10,9 +10,7 @@ const DeleteItem = ({ id }) => {
     try {
       const clusterDocRef = doc(db, 'news', id);
       await deleteDoc(clusterDocRef);
-
       console.log('Cluster successfully deleted with ID:', id);
-
       setIsModalOpen(false);
       router.back()
     } catch (error) {

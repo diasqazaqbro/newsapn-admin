@@ -8,11 +8,9 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactHtmlParser from "react-html-parser";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-
 const NewsId = () => {
   const router = useRouter();
   const { id } = router.query;
-
   const [selectedNews, setSelectedNews] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedCategory, setEditedCategory] = useState("");
