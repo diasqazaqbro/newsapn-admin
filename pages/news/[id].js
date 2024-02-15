@@ -14,7 +14,11 @@ const NewsId = () => {
   const [selectedNews, setSelectedNews] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedCategory, setEditedCategory] = useState("");
-  
+  const [isChecked, setIsChecked] = useState();
+
+  const handleChange = () => {
+    setIsChecked(!isChecked);
+  };
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     try {
@@ -24,12 +28,12 @@ const NewsId = () => {
       const updatedData = { post_photo: photoURL };
       const newsDocRef = doc(db, "news", id);
       await updateDoc(newsDocRef, updatedData);
-      setSelectedNews((prevState) => ({ ...prevState, post_photo: photoURL })); 
+      setSelectedNews((prevState) => ({ ...prevState, post_photo: photoURL }));
     } catch (error) {
       console.error("Error updating photo:", error);
     }
-};
-
+  };
+  console.log(isChecked);
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -43,6 +47,7 @@ const NewsId = () => {
         setSelectedNews(foundNews);
         setEditedTitle(foundNews.post_title);
         setEditedCategory(foundNews.category);
+        setIsChecked(foundNews.breaking_news);
       } catch (error) {
         console.error("Error fetching news:", error);
       }
@@ -71,6 +76,7 @@ const NewsId = () => {
           post_title: editedTitle,
           category: editedCategory,
           post_description: editorRef.current.getContent(),
+          breaking_news: isChecked
         };
 
         await updateDoc(newsDocRef, updatedData);
@@ -95,10 +101,28 @@ const NewsId = () => {
               <span className="bg-blue-500 text-white px-2 mr-4 py-1 rounded">
                 Редактировать фотографию
               </span>
-              <input id="fileInput" onClick={() => {
-                handleFileChange(event)
-              }} type="file" style={{ display: "none" }} />
+              <input
+                id="fileInput"
+                onClick={() => {
+                  handleFileChange(event);
+                }}
+                type="file"
+                style={{ display: "none" }}
+              />
             </label>
+          </div>
+          <div className="mt-4">
+            <div className="flex self-center">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleChange}
+                className="mr-2 h-5 w-5 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+              />
+              <span className="text-sm font-medium text-gray-900">
+                Главные новости
+              </span>
+            </div>
           </div>
 
           <div className="p-6">

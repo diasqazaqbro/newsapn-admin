@@ -18,6 +18,7 @@ const News = () => {
           ...doc.data(),
         }));
         setNewsList(newsDocs);
+        console.log(newsDocs);
       } catch (error) {
         console.error("Error fetching news:", error);
       }
