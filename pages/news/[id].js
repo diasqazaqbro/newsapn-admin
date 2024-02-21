@@ -179,7 +179,7 @@ const NewsId = () => {
             </select>
 
             <Editor
-              apiKey="your-api-key"
+              apiKey='a3mu452cbh2dxc6zy2w75jelhgvjq4nk8ic27hcwfkx12mhv'
               onInit={(evt, editor) => (editorRef.current = editor)}
               initialValue={selectedNews.post_description}
               init={{
