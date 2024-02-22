@@ -1,13 +1,16 @@
 import React, { useRef, useState } from "react";
-import { addDoc, collection } from "firebase/firestore/lite";
-import { db } from "@/lib/config";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore/lite";
+import { db, storage } from "@/lib/config";
 import Layout from "@/components/Layout";
 import { Editor } from "@tinymce/tinymce-react";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const NewNewsForm = () => {
   const [postTitle, setPostTitle] = useState("");
   const editorRef = useRef(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [file, setFile] = useState();
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
@@ -17,14 +20,29 @@ const NewNewsForm = () => {
   const handleCreateNews = async () => {
     if (editorRef.current) {
       console.log(editorRef.current.getContent());
+      if (!file) {
+        alert("Загрузите фотку");
+        return;
+      }
       try {
+        const storageRef = ref(storage, `news/${postTitle}`);
+        await uploadBytes(storageRef, file);
+        const photoURL = await getDownloadURL(storageRef);
         const newsCollection = collection(db, "news");
         const newNewsDoc = await addDoc(newsCollection, {
           category: selectedCategory,
           post_description: editorRef.current.getContent(),
           post_title: postTitle,
+          breaking_news: isChecked,
+          num_comments: 0,
+          num_likes: 0,
+          num_views: 0,
+          post_user: "users/vmjD2bZBMxd6ajB917GQC2o72Rv2",
+          tag: [],
+          viewed: [],
+          post_photo: photoURL,
         });
-
+        console.log("File object:", file);
         console.log("Document successfully created with ID:", newNewsDoc.id);
         setPostTitle("");
       } catch (error) {
@@ -33,10 +51,43 @@ const NewNewsForm = () => {
     }
   };
 
+  const handleChange = () => {
+    setIsChecked(!isChecked);
+  };
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+  console.log(isChecked);
   return (
     <Layout>
       <div className="flex items-center justify-center">
         <div className="max-w w-full p-4 bg-white rounded-lg shadow-md">
+          <label htmlFor="fileInput" className="cursor-pointer">
+            <span className="bg-blue-500 text-white px-2 mr-4 py-1 rounded">
+              Добавить фотографию
+            </span>
+            <input
+              id="fileInput"
+              onClick={(event) => {
+                handleFileChange(event);
+              }}
+              type="file"
+              style={{ display: "none" }}
+            />
+          </label>
+          <div className="mt-4 mb-6">
+            <div className="flex self-center">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleChange}
+                className="mr-2 h-5 w-5 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+              />
+              <span className="text-sm font-medium text-gray-900">
+                Главные новости
+              </span>
+            </div>
+          </div>
           <label htmlFor="category">Категория:</label>
           <select
             id="category"
@@ -77,8 +128,9 @@ const NewNewsForm = () => {
               className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
             />
           </label>
+
           <Editor
-            apiKey='a3mu452cbh2dxc6zy2w75jelhgvjq4nk8ic27hcwfkx12mhv'
+            apiKey="a3mu452cbh2dxc6zy2w75jelhgvjq4nk8ic27hcwfkx12mhv"
             onInit={(evt, editor) => (editorRef.current = editor)}
             initialValue={"<p>Введите описание</p>"}
             init={{
