@@ -37,7 +37,7 @@ const [url, setUrl] = useState("")
           num_comments: 0,
           num_likes: 0,
           num_views: 0,
-          post_user: "users/vmjD2bZBMxd6ajB917GQC2o72Rv2",
+          post_user: "/users/vmjD2bZBMxd6ajB917GQC2o72Rv2",
           tag: [],
           viewed: [],
           post_photo: photoURL,
