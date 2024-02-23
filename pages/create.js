@@ -11,7 +11,7 @@ const NewNewsForm = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [file, setFile] = useState();
   const [isChecked, setIsChecked] = useState(false);
-
+const [url, setUrl] = useState("")
   const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedCategory(selectedValue);
@@ -41,6 +41,7 @@ const NewNewsForm = () => {
           tag: [],
           viewed: [],
           post_photo: photoURL,
+          url: url
         });
         console.log("File object:", file);
         console.log("Document successfully created with ID:", newNewsDoc.id);
@@ -125,6 +126,15 @@ const NewNewsForm = () => {
               type="text"
               value={postTitle}
               onChange={(e) => setPostTitle(e.target.value)}
+              className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
+            />
+          </label>
+          <label className="block mb-4">
+            <span className="text-gray-700">URL:</span>
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
               className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
             />
           </label>
