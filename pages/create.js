@@ -41,7 +41,8 @@ const [url, setUrl] = useState("")
           tag: [],
           viewed: [],
           post_photo: photoURL,
-          url: url
+          url: url,
+          time_posted: ''
         });
         console.log("File object:", file);
         console.log("Document successfully created with ID:", newNewsDoc.id);
