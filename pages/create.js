@@ -1,5 +1,11 @@
 import React, { useRef, useState } from "react";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore/lite";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore/lite";
 import { db, storage } from "@/lib/config";
 import Layout from "@/components/Layout";
 import { Editor } from "@tinymce/tinymce-react";
@@ -11,11 +17,40 @@ const NewNewsForm = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [file, setFile] = useState();
   const [isChecked, setIsChecked] = useState(false);
-const [url, setUrl] = useState("")
+  const [url, setUrl] = useState("");
   const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedCategory(selectedValue);
   };
+
+  function formatDate(date) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const formattedDate = `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} AM UTC+6`;
+
+    return formattedDate;
+  }
+
 
   const handleCreateNews = async () => {
     if (editorRef.current) {
@@ -29,6 +64,14 @@ const [url, setUrl] = useState("")
         await uploadBytes(storageRef, file);
         const photoURL = await getDownloadURL(storageRef);
         const newsCollection = collection(db, "news");
+        const userDoc = await getDoc(
+          doc(db, "users", "vmjD2bZBMxd6ajB917GQC2o72Rv2")
+        );
+        const currentDate = new Date(); // Получаем текущую дату и время
+        const formattedDate = formatDate(currentDate); // Форматируем дату
+      
+        console.log(formattedDate);
+        const userReference = userDoc.ref;
         const newNewsDoc = await addDoc(newsCollection, {
           category: selectedCategory,
           post_description: editorRef.current.getContent(),
@@ -37,12 +80,12 @@ const [url, setUrl] = useState("")
           num_comments: 0,
           num_likes: 0,
           num_views: 0,
-          post_user: "/users/vmjD2bZBMxd6ajB917GQC2o72Rv2",
+          post_user: userReference,
           tag: [],
           viewed: [],
           post_photo: photoURL,
           url: url,
-          time_posted: ''
+          time_posted: currentDate,
         });
         console.log("File object:", file);
         console.log("Document successfully created with ID:", newNewsDoc.id);
