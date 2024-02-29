@@ -8,7 +8,6 @@ export default function Home() {
 	return (
 		<Layout>
 			<h3 className='font-medium text-2xl py-3'>
-				<News/>
 			</h3>
 		</Layout>
 	)

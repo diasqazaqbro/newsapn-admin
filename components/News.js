@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "@/lib/config";
-import { collection, getDocs, query, where } from "firebase/firestore/lite";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore/lite";
 import Link from "next/link";
 
 const News = () => {
@@ -12,7 +12,8 @@ const News = () => {
     async function fetchNews() {
       try {
         const newsCollection = collection(db, "news");
-        const querySnapshot = await getDocs(newsCollection);
+        const q = query(newsCollection, orderBy("time_posted", "desc")); // Query sorted by time_posted in descending order
+        const querySnapshot = await getDocs(q);
         const newsDocs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),

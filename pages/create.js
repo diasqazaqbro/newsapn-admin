@@ -1,15 +1,10 @@
 import React, { useRef, useState } from "react";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore/lite";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore/lite";
 import { db, storage } from "@/lib/config";
 import Layout from "@/components/Layout";
 import { Editor } from "@tinymce/tinymce-react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import ReactHtmlParser from "react-html-parser";
 
 const NewNewsForm = () => {
   const [postTitle, setPostTitle] = useState("");
@@ -18,39 +13,11 @@ const NewNewsForm = () => {
   const [file, setFile] = useState();
   const [isChecked, setIsChecked] = useState(false);
   const [url, setUrl] = useState("");
+
   const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedCategory(selectedValue);
   };
-
-  function formatDate(date) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    const formattedDate = `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} AM UTC+6`;
-
-    return formattedDate;
-  }
-
 
   const handleCreateNews = async () => {
     if (editorRef.current) {
@@ -68,11 +35,8 @@ const NewNewsForm = () => {
           doc(db, "users", "vmjD2bZBMxd6ajB917GQC2o72Rv2")
         );
         const currentDate = new Date(); // Получаем текущую дату и время
-        const formattedDate = formatDate(currentDate); // Форматируем дату
-      
-        console.log(formattedDate);
         const userReference = userDoc.ref;
-        const newNewsDoc = await addDoc(newsCollection, {
+        await addDoc(newsCollection, {
           category: selectedCategory,
           post_description: editorRef.current.getContent(),
           post_title: postTitle,
@@ -88,8 +52,9 @@ const NewNewsForm = () => {
           time_posted: currentDate,
         });
         console.log("File object:", file);
-        console.log("Document successfully created with ID:", newNewsDoc.id);
+        console.log("Document successfully created");
         setPostTitle("");
+        setShowPreview(true); // Show preview after creating the news
       } catch (error) {
         console.error("Error creating document: ", error);
       }
@@ -99,10 +64,11 @@ const NewNewsForm = () => {
   const handleChange = () => {
     setIsChecked(!isChecked);
   };
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
-  console.log(isChecked);
+
   return (
     <Layout>
       <div className="flex items-center justify-center">
@@ -198,10 +164,9 @@ const NewNewsForm = () => {
                 "image",
                 "charmap",
                 "preview",
-                "anchor",
                 "searchreplace",
                 "visualblocks",
-                "code",
+                "codesample code",
                 "fullscreen",
                 "insertdatetime",
                 "media",
@@ -213,8 +178,8 @@ const NewNewsForm = () => {
               toolbar:
                 "undo redo | blocks | " +
                 "bold italic forecolor | alignleft aligncenter " +
-                "alignright alignjustify | bullist numlist outdent indent | " +
-                "removeformat | help",
+                "alignright alignjustify | bullist numlist outdent indent |" +
+                "media | image  | preview | table | code",
               content_style:
                 "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
@@ -222,7 +187,7 @@ const NewNewsForm = () => {
 
           <button
             onClick={handleCreateNews}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+            className="bg-blue-500 mt-5 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
           >
             Создать новость
           </button>
