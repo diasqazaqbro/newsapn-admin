@@ -13,6 +13,7 @@ const NewsId = () => {
   const { id } = router.query;
   const [selectedNews, setSelectedNews] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
+  const [editedVideo, setEditedVideo] = useState("");
   const [editedCategory, setEditedCategory] = useState("");
   const [isChecked, setIsChecked] = useState();
 
@@ -46,6 +47,7 @@ const NewsId = () => {
         const foundNews = newsDocs.find((news) => news.id === id);
         setSelectedNews(foundNews);
         setEditedTitle(foundNews.post_title);
+        setEditedVideo(foundNews.youtube)
         setEditedCategory(foundNews.category);
         setIsChecked(foundNews.breaking_news);
       } catch (error) {
@@ -76,7 +78,8 @@ const NewsId = () => {
           post_title: editedTitle,
           category: editedCategory,
           post_description: editorRef.current.getContent(),
-          breaking_news: isChecked
+          breaking_news: isChecked,
+          youtube: editedVideo
         };
 
         await updateDoc(newsDocRef, updatedData);
@@ -98,6 +101,7 @@ const NewsId = () => {
           />
           <div className="mt-4">
             <label htmlFor="fileInput" className="cursor-pointer">
+              <div>Youtube: {editedVideo ? editedVideo : 'нет видео'}</div>
               <span className="bg-blue-500 text-white px-2 mr-4 py-1 rounded">
                 Редактировать фотографию
               </span>
@@ -148,6 +152,13 @@ const NewsId = () => {
               onChange={handleTitleChange}
               className="border p-2 mb-4 rounded"
             />
+            
+            {editedVideo ?  <input
+              type="text"
+              value={editedVideo}
+              onChange={(e) => {setEditedVideo(e.current.value)}}
+              className="border p-2 mb-10 rounded"
+            /> : ''}
 
             <select
               value={editedCategory}
