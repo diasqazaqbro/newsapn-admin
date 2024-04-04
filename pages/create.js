@@ -13,6 +13,7 @@ const NewNewsForm = () => {
   const [file, setFile] = useState();
   const [isChecked, setIsChecked] = useState(false);
   const [url, setUrl] = useState("");
+  const [youtube, setYoutube] = useState("");
 
   const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
@@ -50,6 +51,7 @@ const NewNewsForm = () => {
           post_photo: photoURL,
           url: url,
           time_posted: currentDate,
+          youtube: youtube
         });
         console.log("File object:", file);
         console.log("Document successfully created");
@@ -145,6 +147,15 @@ const NewNewsForm = () => {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
+            />
+          </label>
+          <label className="block mb-4">
+            <span className="text-gray-700">Youtube link:</span>
+            <input
+              type="text"
+              value={youtube}
+              onChange={(e) => setYoutube(e.target.value)}
               className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
             />
           </label>
