@@ -34,7 +34,6 @@ const NewsId = () => {
       console.error("Error updating photo:", error);
     }
   };
-  console.log(isChecked);
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -153,12 +152,16 @@ const NewsId = () => {
               className="border p-2 mb-4 rounded"
             />
             
-            {editedVideo ?  <input
+
+            {editedVideo ? <>
+            <div>Youtube</div>
+            
+              <input
               type="text"
               value={editedVideo}
-              onChange={(e) => {setEditedVideo(e.current.value)}}
+              onChange={(e) => {setEditedVideo(e.target.value)}}
               className="border p-2 mb-10 rounded"
-            /> : ''}
+            /></> : ''}
 
             <select
               value={editedCategory}
