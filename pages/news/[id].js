@@ -13,7 +13,7 @@ const NewsId = () => {
   const { id } = router.query;
   const [selectedNews, setSelectedNews] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
-  const [editedVideo, setEditedVideo] = useState("");
+  const [editedVideo, setEditedVideo] = useState(" ");
   const [editedCategory, setEditedCategory] = useState("");
   const [isChecked, setIsChecked] = useState();
 
@@ -66,13 +66,13 @@ const NewsId = () => {
   const handleCategoryChange = (e) => {
     setEditedCategory(e.target.value);
   };
+  
 
   const log = async () => {
     if (editorRef.current) {
       console.log(editorRef.current.getContent());
       try {
         const newsDocRef = doc(db, "news", id);
-
         const updatedData = {
           post_title: editedTitle,
           category: editedCategory,
@@ -82,9 +82,11 @@ const NewsId = () => {
         };
 
         await updateDoc(newsDocRef, updatedData);
+        router.push('/');
 
         console.log("Document successfully updated!");
       } catch (error) {
+        alert('Ошибка при изменений')
         console.error("Error updating document: ", error);
       }
     }
@@ -153,7 +155,6 @@ const NewsId = () => {
             />
             
 
-            {editedVideo ? <>
             <div>Youtube</div>
             
               <input
@@ -161,8 +162,7 @@ const NewsId = () => {
               value={editedVideo}
               onChange={(e) => {setEditedVideo(e.target.value)}}
               className="border p-2 mb-10 rounded"
-            /></> : ''}
-
+            />
             <select
               value={editedCategory}
               onChange={handleCategoryChange}
@@ -207,10 +207,9 @@ const NewsId = () => {
                   "image",
                   "charmap",
                   "preview",
-                  "anchor",
                   "searchreplace",
                   "visualblocks",
-                  "code",
+                  "codesample code",
                   "fullscreen",
                   "insertdatetime",
                   "media",
@@ -220,10 +219,10 @@ const NewsId = () => {
                   "wordcount",
                 ],
                 toolbar:
-                  "undo redo | blocks | " +
-                  "bold italic forecolor | alignleft aligncenter " +
-                  "alignright alignjustify | bullist numlist outdent indent | " +
-                  "removeformat | help",
+                "undo redo | blocks | " +
+                "bold italic forecolor | alignleft aligncenter " +
+                "alignright alignjustify | bullist numlist outdent indent |" +
+                "media | image  | preview | table | code",
                 content_style:
                   "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
               }}

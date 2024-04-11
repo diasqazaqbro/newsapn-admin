@@ -4,7 +4,7 @@ import { db, storage } from "@/lib/config";
 import Layout from "@/components/Layout";
 import { Editor } from "@tinymce/tinymce-react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import ReactHtmlParser from "react-html-parser";
+import { useRouter } from "next/router";
 
 const NewNewsForm = () => {
   const [postTitle, setPostTitle] = useState("");
@@ -14,11 +14,14 @@ const NewNewsForm = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [url, setUrl] = useState("");
   const [youtube, setYoutube] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   const handleCategoryChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedCategory(selectedValue);
   };
+
+  const router = useRouter();
 
   const handleCreateNews = async () => {
     if (editorRef.current) {
@@ -35,7 +38,7 @@ const NewNewsForm = () => {
         const userDoc = await getDoc(
           doc(db, "users", "vmjD2bZBMxd6ajB917GQC2o72Rv2")
         );
-        const currentDate = new Date(); // Получаем текущую дату и время
+        const currentDate = new Date(); 
         const userReference = userDoc.ref;
         await addDoc(newsCollection, {
           category: selectedCategory,
@@ -56,8 +59,10 @@ const NewNewsForm = () => {
         console.log("File object:", file);
         console.log("Document successfully created");
         setPostTitle("");
-        setShowPreview(true); // Show preview after creating the news
+        setShowPreview(true);
+        router.push('/');
       } catch (error) {
+        alert('Произошла ошибка')
         console.error("Error creating document: ", error);
       }
     }
@@ -68,7 +73,14 @@ const NewNewsForm = () => {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setFile(file); 
+      const img = URL.createObjectURL(file);
+      setImageFile(img);
+    } else {
+      setImageFile(null);
+    }
   };
 
   return (
@@ -76,6 +88,7 @@ const NewNewsForm = () => {
       <div className="flex items-center justify-center">
         <div className="max-w w-full p-4 bg-white rounded-lg shadow-md">
           <label htmlFor="fileInput" className="cursor-pointer">
+          {imageFile && <img src={imageFile} alt="Uploaded" className="w-full h-48 object-cover"/>}
             <span className="bg-blue-500 text-white px-2 mr-4 py-1 rounded">
               Добавить фотографию
             </span>
