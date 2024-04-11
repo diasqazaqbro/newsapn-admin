@@ -93,7 +93,7 @@ const NewNewsForm = () => {
             </span>
             <input
               id="fileInput"
-              onClick={(event) => {
+              onChange={(event) => {
                 handleFileChange(event);
               }}
               type="file"
