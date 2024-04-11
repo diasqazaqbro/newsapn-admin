@@ -86,7 +86,6 @@ const NewsId = () => {
 
         console.log("Document successfully updated!");
       } catch (error) {
-        alert('Ошибка при изменений')
         console.error("Error updating document: ", error);
       }
     }
@@ -108,7 +107,7 @@ const NewsId = () => {
               </span>
               <input
                 id="fileInput"
-                onClick={() => {
+                onClick={(event) => {
                   handleFileChange(event);
                 }}
                 type="file"

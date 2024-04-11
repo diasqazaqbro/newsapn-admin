@@ -62,7 +62,6 @@ const NewNewsForm = () => {
         setShowPreview(true);
         router.push('/');
       } catch (error) {
-        alert('Произошла ошибка')
         console.error("Error creating document: ", error);
       }
     }
