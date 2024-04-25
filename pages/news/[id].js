@@ -78,7 +78,7 @@ const NewsId = () => {
           category: editedCategory,
           post_description: editorRef.current.getContent(),
           breaking_news: isChecked,
-          youtube: editedVideo | "Пусто"
+          youtube: editedVideo != 0 && editedVideo ? editedVideo : "Пусто"
         };
 
         await updateDoc(newsDocRef, updatedData);
