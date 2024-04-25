@@ -13,7 +13,7 @@ const NewsId = () => {
   const { id } = router.query;
   const [selectedNews, setSelectedNews] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
-  const [editedVideo, setEditedVideo] = useState(" ");
+  const [editedVideo, setEditedVideo] = useState("");
   const [editedCategory, setEditedCategory] = useState("");
   const [isChecked, setIsChecked] = useState();
 
@@ -70,7 +70,7 @@ const NewsId = () => {
 
   const log = async () => {
     if (editorRef.current) {
-      console.log(editorRef.current.getContent());
+      console.log(editedVideo);
       try {
         const newsDocRef = doc(db, "news", id);
         const updatedData = {
@@ -78,7 +78,7 @@ const NewsId = () => {
           category: editedCategory,
           post_description: editorRef.current.getContent(),
           breaking_news: isChecked,
-          youtube: editedVideo
+          youtube: editedVideo | ""
         };
 
         await updateDoc(newsDocRef, updatedData);
