@@ -4,22 +4,15 @@ import { db } from "@/lib/config";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore/lite";
 import CommentCard from "@/components/CommentCard";
 
-const fetchUserData = async (userRef) => {
-  const userDoc = await getDoc(userRef);
-  if (userDoc.exists()) {
-    return userDoc.data();
-  } else {
-    return null;
-  }
+const fetchDocumentData = async (docRef) => {
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
 };
 
-const fetchNewsData = async (newsRef) => {
-  const newsDoc = await getDoc(newsRef);
-  if (newsDoc.exists()) {
-    return newsDoc.data();
-  } else {
-    return null;
-  }
+
+const fetchMultipleDocuments = async (docRefs) => {
+  const dataPromises = docRefs.map(ref => fetchDocumentData(ref));
+  return Promise.all(dataPromises);
 };
 
 export default function Home() {
@@ -27,40 +20,47 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchComments() {
-      try {
         const commentsCollection = collection(db, "coments");
         const querySnapshot = await getDocs(commentsCollection);
-        const comments = [];
+        const commentsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log(commentsData[0].news_Ref.id)
+        // Extract unique user and news references
+        const userRefs = [...new Set(commentsData.map(comment => doc(db, "users", comment.user.id)))];
+        const newsRefs = [...new Set(commentsData.map(comment => doc(db, "news", comment.news_Ref.id)))];
+        console.log(123)
 
-        for (const doc of querySnapshot.docs) {
-          const commentData = doc.data();
+        // Fetch user and news data in parallel
+        const [users, newsItems] = await Promise.all([
+          fetchMultipleDocuments(userRefs),
+          fetchMultipleDocuments(newsRefs)
+        ]);
 
-          const userRef = doc.get("user");
-          const newsRef = doc.get("news_Ref");
+        // Create lookup tables
+        const usersById = users.reduce((acc, user) => (user ? { ...acc, [user.id]: user } : acc), {});
+        const newsById = newsItems.reduce((acc, news) => (news ? { ...acc, [news.id]: news } : acc), {});
 
-          const userData = await fetchUserData(userRef);
-          const newsData = await fetchNewsData(newsRef);
-
-          comments.push({ id: doc.id, ...commentData, user: userData, news: newsData });
-        }
-
-        setCommentList(comments);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      } 
+        // Assemble comments with user and news data
+        const enrichedComments = commentsData.map(comment => ({
+          ...comment,
+          user: usersById[comment.user],
+          news: newsById[comment.news_Ref]
+        }));
+        console.log(enrichedComments)
+        console.log(123)
+        setCommentList(enrichedComments.filter(comment => !comment.moderated));
     }
 
     fetchComments();
+    console.log(commentList)
   }, []);
-  console.log(commentList);
-  const filteredComment = commentList.filter((c) => c.moderated == false)
+
   return (
-    <Layout>
-      <div className="container mx-auto p-4">
-        {filteredComment.length > 0 ? filteredComment.map((comment, index) => (
-          <CommentCard key={index} comment={comment} />
-        )) : <h2 className="text-center mt-[100px] text-2xl">Нет комментариев :(</h2>}
-      </div>
-    </Layout>
+      <Layout>
+        <div className="container mx-auto p-4">
+          {commentList.length > 0 ? commentList.map((comment, index) => (
+              <CommentCard key={index} comment={comment} />
+          )) : <h2 className="text-center mt-[100px] text-2xl">No comments available.</h2>}
+        </div>
+      </Layout>
   );
 }
